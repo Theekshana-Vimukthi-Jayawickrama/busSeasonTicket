@@ -1,6 +1,5 @@
 package com.example.demo.config;
 
-import jakarta.servlet.Filter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,7 +35,14 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests()
                 .requestMatchers("/api/v1/auth/**")
                 .permitAll()
-
+                .requestMatchers("/api/v1/route/**")
+                .permitAll()
+                .requestMatchers("api/v1/smsOTP/**")
+                .permitAll()
+                .requestMatchers("/api/v1/qrcodes/**")
+                .permitAll()
+                .requestMatchers("/api/v1/demo-controller/**")
+                .permitAll()
                 .requestMatchers("/api/v1/management/**").hasAnyRole(ADMIN.name(),MANAGER.name())
 
                 .requestMatchers(GET,"/api/v1/management/**").hasAnyAuthority(ADMIN_READ.name(),Manager_READ.name())
