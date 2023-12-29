@@ -1,5 +1,8 @@
 package com.example.demo.QRcode;
 
+import com.google.zxing.*;
+import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
+import com.google.zxing.common.HybridBinarizer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -7,7 +10,13 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -45,6 +54,26 @@ public class QRCodeController {
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to generate QR Code: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/scanQR")
+    public String scanQRCode(@RequestBody String base64Image) {
+        try {
+            byte[] imageBytes = Base64.getDecoder().decode(base64Image);
+            ByteArrayInputStream bis = new ByteArrayInputStream(imageBytes);
+            BufferedImage image = ImageIO.read(bis);
+
+            BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(
+                    new BufferedImageLuminanceSource(image)));
+            Map<DecodeHintType, Object> hints = new HashMap<>();
+            hints.put(DecodeHintType.TRY_HARDER, Boolean.TRUE);
+
+            Result result = new MultiFormatReader().decode(binaryBitmap, hints);
+            return result.getText();
+        } catch (NotFoundException | IOException e) {
+            e.printStackTrace();
+            return "Error: " + e.getMessage();
         }
     }
 }

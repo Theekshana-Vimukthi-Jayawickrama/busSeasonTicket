@@ -1,4 +1,4 @@
-package com.example.demo.auth;
+package com.example.demo.adminUser;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,11 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RouteRequest {
-    private String route;
-    private Double charge;
-    private String nearestDeport;
+@Builder
+public class UserUpdateRequest {
+    private String status;
 }

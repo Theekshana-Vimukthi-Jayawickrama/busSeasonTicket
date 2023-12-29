@@ -13,5 +13,5 @@ public class BusRouteRequest {
     private String route;
     private Integer routeNo;
     private String distance;
-    private Double charge;
+    private Double perDayCharge;
 }

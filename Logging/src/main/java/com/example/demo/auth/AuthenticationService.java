@@ -12,13 +12,13 @@ import com.example.demo.util.ImageUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -52,7 +52,7 @@ public class AuthenticationService {
     private final ApprovalLetterRepository approvalLetterRepository;
 
     @Transactional
-    public AuthenticationResponse register(RegisterRequest request, SchoolRequest stuRequest, GuardianRequest guardianRequest,RouteRequest routeRequest, MultipartFile birthFile, MultipartFile approvalLetter) throws Exception {
+    public AuthenticationResponse register(RegisterRequest request, SchoolRequest stuRequest, GuardianRequest guardianRequest, RouteRequest routeRequest, MultipartFile birthFile, MultipartFile approvalLetter, MultipartFile userPhoto) throws Exception {
 
         String email = request.getEmail();
         // Check if email already exists
@@ -75,7 +75,9 @@ public class AuthenticationService {
                 .build();
 
         String route = routeRequest.getRoute();
-        StuBusDetails stuBusDetails = stuBusRoute(route);
+        String nearestDeport =routeRequest.getNearestDeport();
+        Double charge = routeRequest.getCharge();
+        StuBusDetails stuBusDetails = stuBusRoute(route,charge,nearestDeport);
 
        var user = User.builder()
                 .fullname(request.getFullname())
@@ -86,28 +88,15 @@ public class AuthenticationService {
                 .guardianDetails(guardianDetails)
                 .gender(request.getGender())
                 .dob(request.getDob())
+                .telephoneNumber(request.getTelephone())
+                .residence(request.getResidence())
+                .verified(false)
                 .address(request.getAddress())
+                .status("Pending".trim().toLowerCase())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER)
                 .build();
 
-       //BirthFile handle functions
-        String fileName = StringUtils.cleanPath(Objects.requireNonNull(birthFile.getOriginalFilename()));
-
-//        try {
-//            if (fileName.contains("..")) {
-//                throw new Exception("The file name is invalid" + fileName);
-//            }
-//            StudentBirthFiles studentBirthFiles = studentBirthFilesRepo.save(StudentBirthFiles.builder()
-//                    .fileBirthName(birthFile.getOriginalFilename())
-//                    .fileBirthType(birthFile.getContentType())
-//                    .fileBirthData(ImageUtils.compressImage(birthFile.getBytes()))
-//                    .build());
-//            user.setStudentBirthFiles(studentBirthFiles);
-//
-//        } catch (Exception e) {
-//            throw new Exception("File could not be saved");
-//        }
         //Approval file save
         ApprovalLetter stuApprovalLetter = stuApprovalLetter(approvalLetter);
         if(stuApprovalLetter==null){
@@ -123,6 +112,14 @@ public class AuthenticationService {
             user.setStudentBirthFiles(studentBirthFiles);
         }
 
+        //photo
+        StudentPhotos userPhoto1 = userPhotoUpload(userPhoto);
+        if(userPhoto1==null){
+            throw new Exception("File could not be saved");
+        }else{
+            user.setUserPhoto(userPhoto1);
+        }
+
         repository.save(user);
         var jwtToken = JwtService.generateToken(user);
         return AuthenticationResponse.builder()
@@ -131,6 +128,7 @@ public class AuthenticationService {
     }
 
     //Student PDF letter
+    @Transactional
     public ApprovalLetter stuApprovalLetter(MultipartFile file){
 
         try {
@@ -145,6 +143,7 @@ public class AuthenticationService {
     }
 
     //Student BirthFile
+    @Transactional
     public StudentBirthFiles stuBirthFile(MultipartFile file){
 
         try {
@@ -157,6 +156,19 @@ public class AuthenticationService {
             throw new RuntimeException(e);
         }
     }
+@Transactional
+    public StudentPhotos userPhotoUpload (MultipartFile file){
+
+        try {
+            StudentPhotos photo = new StudentPhotos();
+            photo.setUserPhotoName(file.getOriginalFilename());
+            photo.setPhotoType(file.getContentType());
+            photo.setData(file.getBytes());
+            return photo;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public byte[] downloadImage(Long fileId){
         Optional<StudentBirthFiles> dbImageData = uploadRepository.findById(fileId);
@@ -164,17 +176,17 @@ public class AuthenticationService {
     }
 
     //BusRoute that student will go...
-    public StuBusDetails stuBusRoute(String route){
+    public StuBusDetails stuBusRoute(String route, Double charge,String nearestDeport){
         BusRoute busRoute = busRouteRepository.findByRoute(route);
         try {
             if (busRoute != null) {
-                Double charge = busRoute.getCharge();
                 String distance = busRoute.getDistance();
 
                 return StuBusDetails.builder()
                         .charge(charge)
                         .distance(distance)
                         .route(route)
+                        .nearestDeport(nearestDeport)
                         .build();
             } else {
                 // Handle case where busRoute is not found for the given route
@@ -188,48 +200,77 @@ public class AuthenticationService {
 
 
     //Email works and OTP generate...
-        public void sendOTPEmail(String toEmail, String otp) {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(toEmail);
-            message.setSubject("OTP Verification");
-            message.setText("Your OTP for verification is: " + otp);
-            emailSender.send(message);
+        public boolean sendOTPEmail(String toEmail, Integer otp) {
+            try {
+                SimpleMailMessage message = new SimpleMailMessage();
+                message.setTo(toEmail);
+                message.setSubject("OTP Verification");
+                message.setText("Your OTP for verification is: " + otp + ". This will expire within TWO minutes.");
+                emailSender.send(message);
+                return true; // Email sent successfully
+            } catch (MailException e) {
+                // Handle exceptions (e.g., log or perform appropriate actions)
+                e.printStackTrace();
+                return false; // Email sending failed
+            }
+        }
+    public void sendOTP(String email)  {
+        Optional<OTP> userOTP = otpRepository.findByEmail(email);
+
+        if(userOTP.isPresent()){
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime expiryTime = now.plusMinutes(2);
+            Integer newOTP = generateOTP();
+            OTP otp = userOTP.get();
+            otp.setOtpCode(newOTP);
+            otp.setOtpExpiryTime(expiryTime);
+            otpRepository.save(otp);
+            sendOTPEmail(email, newOTP);
+        }else{
+            // Generate a new OTP
+            Integer OTP = generateOTP();
+            // Save the new OTP for the user
+            saveOTP(email, OTP);
+            // Send the new OTP to the user's email
+            sendOTPEmail(email, OTP);
         }
 
-    public void resendOTP(String email) {
-        Optional<User> userOptional = repository.findByEmail(email);
+    }
+    @Transactional
+    public String reSendOTP (String email){
+        Integer newOTP = generateOTP();
 
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            // Generate a new OTP
-            String newOTP = generateOTP();
-            // Save the new OTP for the user
-            saveOTP(user, newOTP);
-            // Send the new OTP to the user's email
+        Optional<OTP> userOTP = otpRepository.findByEmail(email);
+        if(userOTP.isPresent()){
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime expiryTime = now.plusMinutes(2);
+            OTP otp = userOTP.get();
+            otp.setOtpCode(newOTP);
+            otp.setOtpExpiryTime(expiryTime);
+            otpRepository.save(otp);
             sendOTPEmail(email, newOTP);
-        } else {
-            // Handle cases where user email doesn't exist
-            throw new IllegalArgumentException("User with provided email doesn't exist");
+            return "new OTP sent.";
+        }else{
+            return null;
         }
     }
-
-    public void saveOTP(User user, String otpCode) {
+    @Transactional
+    public void saveOTP(String email, Integer otpCode) {
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime expiryTime = now.plusMinutes(5); // Set OTP expiry to 5 minutes from now
+        LocalDateTime expiryTime = now.plusMinutes(2); // Set OTP expiry to 2 minutes from now
 
         OTP otp = OTP.builder()
                 .otpCode(otpCode)
+                .email(email)
                 .otpExpiryTime(expiryTime)
                 .build();
 
-        user.setOtp(otp); // Associate OTP with the user
         otpRepository.save(otp); // Save OTP in the database
 
-        repository.save(user); // Update user with OTP details
     }
 
     // Generate OTP method
-    public String generateOTP() {
+    public Integer generateOTP() {
         User user = new User();
         String numbers = "0123456789";
         Random random = new SecureRandom();
@@ -238,20 +279,17 @@ public class AuthenticationService {
         for (int i = 0; i < 6; i++) {
             otp.append(numbers.charAt(random.nextInt(numbers.length())));
         }
-        // Set OTP expiration time (e.g., 5 minutes from now)
-        LocalDateTime expiryTime = LocalDateTime.now().plusMinutes(5); // Change 5 to your desired expiry duration
-        return otp.toString();
+        return Integer.valueOf(otp.toString());
     }
 
-    public String verifyOTP(String email, String otp) {
-        User user = repository.findByEmail(email)
-                .orElseThrow(); // Fetch user by email (consider error handling)
+    public String verifyOTP(String email, Integer otp) {
+        Optional<OTP> userOTP= otpRepository.findByEmail(email);
 
-        OTP userOTP = user.getOtp();
-        if(user.getEmail().equals(email)){
-        if (userOTP != null && userOTP.getOtpCode().equals(otp)) {
+        if(userOTP.isPresent()){
+
+        if (userOTP.get().getOtpCode() != null && userOTP.get().getOtpCode().equals(otp)) {
             LocalDateTime now = LocalDateTime.now();
-            LocalDateTime expiryTime = userOTP.getOtpExpiryTime();
+            LocalDateTime expiryTime = userOTP.get().getOtpExpiryTime();
 
             // Check if OTP has expired
             if (now.isBefore(expiryTime)) {
@@ -261,35 +299,43 @@ public class AuthenticationService {
                 // OTP is expired
                 return "OTP is expired";
             }
-        }else{
-            // Invalid OTP
-            return "Invalid OTP";
-        }}else{
-            return "Email does not exit";
-            }
+        }else{return "Invalid OTP";}
+        }
+        else{return "Email does not exit.";}
     }
-
 
     //Login..
     public AuthenticationResponse authenticate(AuthenticationRequest request){
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
-                )
-        );
         var user = repository.findByEmail(request.getEmail())
                 .orElseThrow();
 
-        var jwtToken = JwtService.generateToken(user);
-        return AuthenticationResponse.builder()
-                .token(jwtToken)
-                .build();
+        if(Objects.equals(user.getStatus(), "active")){
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getEmail(),
+                            request.getPassword()
+                    )
+            );
+            var jwtToken = JwtService.generateToken(user);
+            return AuthenticationResponse.builder()
+                    .token(jwtToken)
+                    .userId(user.getId())
+                    .build();
+        }else{
+            return null;
+        }
     }
 
     public boolean isEmailUnique(String email) {
         return repository.findByEmail(email).isEmpty();
     }
 
-
+    public boolean checkAlreadyUsers(String email) {
+        Optional<User> user = repository.findByEmail(email);
+        if(user.isPresent()){
+            return true;
+        }else{
+            return false;
+        }
+    }
 }

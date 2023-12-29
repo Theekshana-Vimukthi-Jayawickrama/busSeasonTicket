@@ -20,7 +20,8 @@ public class OTP {
     @Id
     @GeneratedValue
     private Integer id;
-    private String otpCode;
+    private Integer otpCode;
+    private String email;
 
     @Column(name = "otp_expiry_time")
     private LocalDateTime otpExpiryTime;

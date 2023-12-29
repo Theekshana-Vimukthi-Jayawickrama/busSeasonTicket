@@ -18,6 +18,8 @@ public class RegisterRequest {
     private String dob;
     private String gender;
     private String address;
+    private String telephone;
+    private String residence;
     private Role role;
 
 }

@@ -68,6 +68,7 @@ public class QRCodeService {
     }
 
     public Optional<QRCode> getQRCodeById(Integer id) {
+
         return qrCodeRepository.findById(id);
     }
 

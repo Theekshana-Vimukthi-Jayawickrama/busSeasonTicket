@@ -1,4 +1,4 @@
-package com.example.demo.auth;
+package com.example.demo.JourneyMaker;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RouteRequest {
-    private String route;
-    private Double charge;
-    private String nearestDeport;
+public class UserJourneyRequest {
+    private String email;
+    private boolean hasJourney;
 }

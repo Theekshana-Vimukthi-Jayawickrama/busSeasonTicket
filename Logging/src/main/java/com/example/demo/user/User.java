@@ -1,5 +1,6 @@
 package com.example.demo.user;
 
+import com.example.demo.JourneyMaker.UserJourney;
 import com.example.demo.OTPGenerator.OTP;
 import com.example.demo.QRcode.QRCode;
 import com.example.demo.smsOTP.SmsOTP;
@@ -12,9 +13,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Data
 @Builder
@@ -33,15 +32,20 @@ public class User implements UserDetails {
     private String address;
     private String gender;
     private Boolean verified;
+    private String telephoneNumber;
+    private String residence;
+    private String status;
 
     @Column(unique = true)
     private  String email;
     private String password;
 
-
-
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    private List<UserJourney> journeys = new ArrayList<>();
+
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinTable(name ="stu_otp", joinColumns = {@JoinColumn(name = "fk_stu")},
@@ -70,6 +74,10 @@ public class User implements UserDetails {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "fk_birth_id")
     private StudentBirthFiles studentBirthFiles;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "fk_photo_id")
+    private StudentPhotos userPhoto;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "fk_approval_letter")

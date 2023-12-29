@@ -10,10 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GuardianRequest {
-    private Integer guardianId;
     private String nameOfGuardian;
     private String guardianType;
     private String occupation;
     private String contactNumber;
-    private String otpCode;
 }

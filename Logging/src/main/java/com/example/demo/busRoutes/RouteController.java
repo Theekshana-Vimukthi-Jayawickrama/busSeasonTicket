@@ -5,6 +5,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @CrossOrigin
 @RequestMapping("/api/v1/route")
@@ -25,7 +27,25 @@ public class RouteController {
         }
     }
 
+    @GetMapping("/routeList")
+    public ResponseEntity<List<String>> getList() {
+       try {
+           List<String> allBusRoutes = busService.getRoute();
+           return ResponseEntity.ok(allBusRoutes);
+       }catch (Exception e){
+           e.printStackTrace();
+           return ResponseEntity.notFound().build();
+       }
+    }
 
-
+    @GetMapping("/getStudentCharge/{route}")
+    public ResponseEntity<Double> getStudentCharge(@PathVariable String route){
+        try{
+            Double charge = busService.calculateChargeStudent(route);
+            return  ResponseEntity.ok(charge);
+        }catch (Exception e){
+            return ResponseEntity.notFound().build();
+        }
+    }
 
 }

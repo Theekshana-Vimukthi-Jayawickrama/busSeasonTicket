@@ -20,4 +20,5 @@ public class StuBusDetails {
     private String route;
     private String distance;
     private Double charge;
+    private String nearestDeport;
 }

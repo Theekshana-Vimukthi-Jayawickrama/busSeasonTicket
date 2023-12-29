@@ -1,5 +1,6 @@
 package com.example.demo.busRoutes;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -18,10 +19,12 @@ public class BusRoute {
     @Id
     @GeneratedValue
     private Integer id;
+
+    @Column(unique = true)
     private String route;
     private Integer routeNo;
     private String distance;
-    private Double charge;
+    private Double perDayCharge;
 
 
 }
