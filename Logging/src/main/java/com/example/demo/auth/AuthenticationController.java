@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Objects;
+import java.util.UUID;
 
 @RestController
 @CrossOrigin
@@ -144,6 +145,14 @@ public class AuthenticationController {
                 }else{
                     return ResponseEntity.badRequest().body(null);
                 }
+    }
+
+    @GetMapping("/getName/{userId}")
+    public ResponseEntity<String> checkAlreadyUsers(
+            @PathVariable UUID userId){
+        String userName = service.getName(userId);
+        return ResponseEntity.ok(userName);
+
     }
 }
 

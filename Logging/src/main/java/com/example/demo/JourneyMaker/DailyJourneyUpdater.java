@@ -37,10 +37,10 @@ public class DailyJourneyUpdater {
             if(user.getVerified().equals(true)){
                 boolean hasJourneyYesterday = checkJourneyForUserYesterday(user.getId(), yesterday);
 
-                if(hasJourneyYesterday == false){
+                if(!hasJourneyYesterday){
 
                     String email = user.getEmail();
-                    userJourneyService.updateUserJourney( yesterday, hasJourneyYesterday, email);
+                    userJourneyService.updateUserJourney( yesterday, false, email);
                 }
             }
             // Update the journey count for the user based on yesterday's journey

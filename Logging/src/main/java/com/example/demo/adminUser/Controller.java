@@ -1,6 +1,6 @@
 package com.example.demo.adminUser;
 
-import com.example.demo.user.UserRepo;
+import com.example.demo.QRcode.QRCodeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,8 +18,9 @@ import java.util.UUID;
 public class Controller {
 
     @Autowired
-    private final UserRepo userRepository;
     private final AdminService adminService;
+    @Autowired
+    private QRCodeService qrCodeService;
 
 
     @GetMapping("/getAllPendingUsers")
@@ -32,11 +33,15 @@ public class Controller {
 
     }
 
-    @PutMapping("/setUserStatus/{userId}")
+    @PutMapping("/setUserStatus/generateQRCode/{userId}")
     public ResponseEntity<?> approveUser(@PathVariable UUID userId,@RequestBody UserUpdateRequest userUpdateRequest) {
         try {
                 if(adminService.userStatusUpdate(userId,userUpdateRequest)){
-                    return ResponseEntity.ok("status updated");
+                    if(qrCodeService.saveQRCode(userId)){
+                        return ResponseEntity.ok("QR Code generated and saved successfully!, & status updated");
+                    }else{
+                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("status updated but Failed to generate QR Code: ");
+                    }
                 }else{
                     return ResponseEntity
                             .status(HttpStatus.NOT_FOUND)

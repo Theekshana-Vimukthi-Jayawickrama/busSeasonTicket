@@ -41,6 +41,8 @@ public class SecurityConfiguration {
                 .permitAll()
                 .requestMatchers("/api/v1/route/**")
                 .permitAll()
+                .requestMatchers("api/v1/journey/**")
+                .permitAll()
                 .requestMatchers("/api/v1/qrcodes/**")
                 .permitAll()
 //                .requestMatchers("api/v1/journey/**")

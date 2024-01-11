@@ -1,9 +1,12 @@
 package com.example.demo.QRcode;
 
+import com.example.demo.user.User;
+import com.example.demo.user.UserRepo;
 import com.google.zxing.*;
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.common.HybridBinarizer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -14,10 +17,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("api/v1/qrcodes")
@@ -25,10 +25,15 @@ public class QRCodeController {
 
     @Autowired
     private QRCodeService qrCodeService;
+    @Autowired
+    private UserRepo userRepo;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<byte[]> getQRCodeById(@PathVariable Integer id) {
+    @GetMapping("/{userId}")
+    public ResponseEntity<byte[]> getQRCodeById(@PathVariable String userId) {
         // Fetch QR code data from the database based on the provided ID
+
+        Optional<User> user = userRepo.findById(UUID.fromString(userId));
+        int id = user.get().getQrCode().getId();
         Optional<QRCode> qrCodeEntity = qrCodeService.getQRCodeById(id);
 
         if (qrCodeEntity.isEmpty()) {
@@ -46,16 +51,6 @@ public class QRCodeController {
         return new ResponseEntity<>(decodedBytes, headers, HttpStatus.OK);
     }
 
-    @PostMapping("/generate")
-    public ResponseEntity<String> generateQRCode(@RequestParam("email") String email) {
-        try {
-            qrCodeService.saveQRCode(email);
-            return ResponseEntity.ok("QR Code generated and saved successfully!");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to generate QR Code: " + e.getMessage());
-        }
-    }
 
     @PostMapping("/scanQR")
     public String scanQRCode(@RequestBody String base64Image) {
@@ -75,6 +70,11 @@ public class QRCodeController {
             e.printStackTrace();
             return "Error: " + e.getMessage();
         }
+    }
+
+    @GetMapping("/download/{id}")
+    public ResponseEntity<ByteArrayResource> downloadQRCodeById(@PathVariable String id) {
+        return qrCodeService.downloadQRCodeImageById(id);
     }
 }
 

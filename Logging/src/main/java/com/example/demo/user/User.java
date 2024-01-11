@@ -3,7 +3,6 @@ package com.example.demo.user;
 import com.example.demo.JourneyMaker.UserJourney;
 import com.example.demo.OTPGenerator.OTP;
 import com.example.demo.QRcode.QRCode;
-import com.example.demo.smsOTP.SmsOTP;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -51,11 +50,6 @@ public class User implements UserDetails {
     @JoinTable(name ="stu_otp", joinColumns = {@JoinColumn(name = "fk_stu")},
     inverseJoinColumns = {@JoinColumn(name = "fk_otp")})
     private OTP otp;
-
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinTable(name ="stu_SmsOtp", joinColumns = {@JoinColumn(name = "fk_stu")},
-            inverseJoinColumns = {@JoinColumn(name = "fk_SmsOTP")})
-    private SmsOTP SmsOtp;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinTable(name ="stu_QR", joinColumns = {@JoinColumn(name = "fk_stu")},

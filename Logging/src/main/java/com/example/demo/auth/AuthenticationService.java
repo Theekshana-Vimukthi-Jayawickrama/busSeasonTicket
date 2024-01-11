@@ -28,6 +28,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
+import java.util.UUID;
 
 @Service
 @CrossOrigin
@@ -337,5 +338,16 @@ public class AuthenticationService {
         }else{
             return false;
         }
+    }
+
+    public String getName(UUID userId) {
+        Optional<User> user = repository.findById(userId);
+
+        if(user.isPresent()){
+            return  user.get().getFullname();
+        }else{
+            return "No name";
+        }
+
     }
 }

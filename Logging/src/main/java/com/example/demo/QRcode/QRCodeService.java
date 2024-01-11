@@ -8,7 +8,12 @@ import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -28,24 +33,33 @@ public class QRCodeService {
         this.userRepo = userRepo;
     }
 
-    public void saveQRCode(String email) throws WriterException, IOException {
-        Optional<User> user = userRepo.findByEmail(email);
-        UUID userId = user.get().getId();
-
+    public boolean saveQRCode(UUID userId) throws WriterException, IOException {
+        Optional<User> user = userRepo.findById(userId);
+        if(user.isPresent()){
         User updateUser = user.get();
 
-        if(user.get().getEmail().equals(email)){
-        String base64QRCode = generateQRCode(email, userId);
+        String email = user.get().getEmail();
 
-        QRCode qrCode = new QRCode();
-        qrCode.setEmail(email);
-        qrCode.setUserId(userId);
-        qrCode.setQRCodeData(base64QRCode);
+        try{
+            if(user.get().getId().equals(userId)){
+                String base64QRCode = generateQRCode(email, userId);
 
-        updateUser.setQrCode(qrCode);
-        qrCodeRepository.save(qrCode);
-        userRepo.save(updateUser);
+                QRCode qrCode = new QRCode();
+                qrCode.setEmail(email);
+                qrCode.setUserId(userId);
+                qrCode.setQRCodeData(base64QRCode);
+
+                updateUser.setQrCode(qrCode);
+                qrCodeRepository.save(qrCode);
+                userRepo.save(updateUser);
+                return true;
+            }
+        }catch (Exception e){
+            return false;
         }
+        }
+            return false;
+
     }
 
     private static final int WIDTH = 300;
@@ -53,7 +67,7 @@ public class QRCodeService {
 
     public static String generateQRCode(String email, UUID userId) throws WriterException, IOException {
 
-        String qrCodeData = "eamil :" +email + "\n"+"userId: "+ userId;
+        String qrCodeData = "email :" +email + "\n"+"userId: "+ userId;
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         BitMatrix bitMatrix = new MultiFormatWriter().encode(
@@ -70,6 +84,37 @@ public class QRCodeService {
     public Optional<QRCode> getQRCodeById(Integer id) {
 
         return qrCodeRepository.findById(id);
+    }
+
+    public ResponseEntity<ByteArrayResource> downloadQRCodeImageById(String userId) {
+        Optional<User> user = userRepo.findById(UUID.fromString(userId));
+        if(user.isPresent()) {
+            Integer id = user.get().getQrCode().getId();
+            Optional<QRCode> qrCodeOptional = qrCodeRepository.findById(id);
+
+            if (qrCodeOptional.isPresent()) {
+                QRCode qrCode = qrCodeOptional.get();
+                String base64QRCode = qrCode.getQRCodeData();
+
+                if (!StringUtils.isEmpty(base64QRCode)) {
+                    byte[] imageBytes = Base64.getDecoder().decode(base64QRCode);
+
+                    ByteArrayResource resource = new ByteArrayResource(imageBytes);
+
+                    // Set headers to prompt download
+                    HttpHeaders headers = new HttpHeaders();
+                    headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=qr_code.png");
+
+                    return ResponseEntity.ok()
+                            .headers(headers)
+                            .contentLength(imageBytes.length)
+                            .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                            .body(resource);
+                }
+            }
+        }
+        // If QR code or data not found, return a ResponseEntity with an appropriate status
+        return ResponseEntity.notFound().build();
     }
 
 }

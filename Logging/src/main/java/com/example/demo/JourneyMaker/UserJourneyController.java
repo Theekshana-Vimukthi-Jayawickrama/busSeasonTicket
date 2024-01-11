@@ -44,5 +44,7 @@ public class UserJourneyController {
             return ResponseEntity.notFound().build();
         }
     }
+
+
 }
 

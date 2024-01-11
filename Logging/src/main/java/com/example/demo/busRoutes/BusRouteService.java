@@ -4,6 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,9 +40,15 @@ public class BusRouteService {
     public Double calculateChargeStudent(String route){
         BusRoute busRoutes = busRouteRepository.findByRoute(route);
 
+        LocalDate today = LocalDate.now();
+        //TemporalAdjusters.lastDayOfMonth() is used in combination with the with() method of LocalDate to obtain the last day of the current month.
+        LocalDate endOfMonth = today.with(TemporalAdjusters.lastDayOfMonth());
+        //ChronoUnit.DAYS.between(date1, date2) calculates the number of days between date1 and date2
+        long daysBetween = ChronoUnit.DAYS.between(today, endOfMonth);
+
         if(busRoutes.getRoute().equals(route)){
             Double charge = busRoutes.getPerDayCharge();
-            Double studentCharge = ((charge *40) / 100) * 30;
+            Double studentCharge = ((charge *40) / 100) * daysBetween;
             return studentCharge;
         }
         return null;
