@@ -15,6 +15,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Base64;
@@ -28,6 +31,9 @@ public class QRCodeService {
     private QRCodeRepository qrCodeRepository;
     @Autowired
     private final UserRepo userRepo;
+    private static final int WIDTH = 300;
+    private static final int HEIGHT = 300;
+    private static final String FORMAT = "PNG";
 
     public QRCodeService(UserRepo userRepo) {
         this.userRepo = userRepo;
@@ -59,27 +65,31 @@ public class QRCodeService {
         }
         }
             return false;
-
     }
+        public static String generateQRCode(String email, UUID userId) throws WriterException, IOException {
 
-    private static final int WIDTH = 300;
-    private static final int HEIGHT = 300;
+            String qrCodeData = "email: " + email + "\n" + "userId: " + userId;
 
-    public static String generateQRCode(String email, UUID userId) throws WriterException, IOException {
+            BitMatrix bitMatrix = new MultiFormatWriter().encode(
+                    qrCodeData, BarcodeFormat.QR_CODE, WIDTH, HEIGHT, null);
 
-        String qrCodeData = "email :" +email + "\n"+"userId: "+ userId;
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            BufferedImage qrCodeImage = MatrixToImageWriter.toBufferedImage(bitMatrix);
 
-        BitMatrix bitMatrix = new MultiFormatWriter().encode(
-                qrCodeData, BarcodeFormat.QR_CODE, WIDTH, HEIGHT, null);
+            // Add text on the image
+            Graphics2D graphics = qrCodeImage.createGraphics();
+            Font font = new Font("Arial", Font.PLAIN, 12);
+            graphics.setFont(font);
+            graphics.setColor(Color.BLACK);
+            graphics.drawString("Bus season Ticket. "+"User email:"+ email, 10, HEIGHT - 10);
 
-        MatrixToImageWriter.writeToStream(bitMatrix, "PNG", outputStream);
-        byte[] qrCodeBytes = outputStream.toByteArray();
+            // Convert the image to byte array
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            ImageIO.write(qrCodeImage, FORMAT, outputStream);
+            byte[] qrCodeBytes = outputStream.toByteArray();
 
-        // Convert byte array to base64 for storage in the database
-
-        return Base64.getEncoder().encodeToString(qrCodeBytes);
-    }
+            // Convert byte array to base64 for storage in the database
+            return Base64.getEncoder().encodeToString(qrCodeBytes);
+        }
 
     public Optional<QRCode> getQRCodeById(Integer id) {
 

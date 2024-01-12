@@ -2,22 +2,20 @@ package com.example.demo.QRcode;
 
 import com.example.demo.user.User;
 import com.example.demo.user.UserRepo;
-import com.google.zxing.*;
-import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
-import com.google.zxing.common.HybridBinarizer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.*;
+import java.util.Base64;
+import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("api/v1/qrcodes")
@@ -52,25 +50,6 @@ public class QRCodeController {
     }
 
 
-    @PostMapping("/scanQR")
-    public String scanQRCode(@RequestBody String base64Image) {
-        try {
-            byte[] imageBytes = Base64.getDecoder().decode(base64Image);
-            ByteArrayInputStream bis = new ByteArrayInputStream(imageBytes);
-            BufferedImage image = ImageIO.read(bis);
-
-            BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(
-                    new BufferedImageLuminanceSource(image)));
-            Map<DecodeHintType, Object> hints = new HashMap<>();
-            hints.put(DecodeHintType.TRY_HARDER, Boolean.TRUE);
-
-            Result result = new MultiFormatReader().decode(binaryBitmap, hints);
-            return result.getText();
-        } catch (NotFoundException | IOException e) {
-            e.printStackTrace();
-            return "Error: " + e.getMessage();
-        }
-    }
 
     @GetMapping("/download/{id}")
     public ResponseEntity<ByteArrayResource> downloadQRCodeById(@PathVariable String id) {
