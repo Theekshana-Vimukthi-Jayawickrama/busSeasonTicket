@@ -1,7 +1,7 @@
 package com.example.demo.auth;
 
-import com.example.demo.user.ApprovalLetter;
-import com.example.demo.user.ApprovalLetterRepository;
+import com.example.demo.Student.ApprovalLetter;
+import com.example.demo.Student.ApprovalLetterRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;

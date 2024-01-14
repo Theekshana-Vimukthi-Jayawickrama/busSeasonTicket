@@ -1,9 +1,8 @@
-package com.example.demo.user;
+package com.example.demo.Student;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,13 +13,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "guardianDetails")
-public class GuardianDetails {
+public class StuBusDetails {
     @Id
     @GeneratedValue
-    private Integer guardianId;
-    private String nameOfGuardian;
-    private String guardianType;
-    private String occupation;
-    private String contactNumber;
+    private Integer id;
+    private String route;
+    private String distance;
+    private Double charge;
+    private String nearestDeport;
 }

@@ -1,4 +1,4 @@
-package com.example.demo.user;
+package com.example.demo.Student;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;

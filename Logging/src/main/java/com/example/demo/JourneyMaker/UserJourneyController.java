@@ -15,11 +15,11 @@ public class UserJourneyController {
     @Autowired
     private UserJourneyService userJourneyService;
 
-    @PostMapping("/update")
+    @PostMapping("/student/update")
     public ResponseEntity<String> updateUserJourney(@RequestBody UserJourneyRequest request) {
         try{
             LocalDate date =LocalDate.now();
-            String status = userJourneyService.updateUserJourney(date, request.isHasJourney(), request.getEmail());
+            String status = userJourneyService.updateStudentJourney(date, request.isHasJourney(), request.getEmail());
             if(Objects.equals(status, "Updated")){
                 return ResponseEntity.ok("Updated");
             }else if(Objects.equals(status, "Not verified")){
@@ -34,11 +34,30 @@ public class UserJourneyController {
 
     }
 
-    @GetMapping("/checkJourney/{userId}/{date}")
+    @PostMapping("/adult/update")
+    public ResponseEntity<String> updateAdultUserJourney(@RequestBody UserJourneyRequest request) {
+        try{
+            LocalDate date =LocalDate.now();
+            String status = userJourneyService.checkDays(date, request.isHasJourney(), request.getEmail());
+            if(Objects.equals(status, "Updated")){
+                return ResponseEntity.ok("Updated");
+            }else if(Objects.equals(status, "Not verified")){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Not verified");
+            }else{
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User Not Found");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            return ResponseEntity.notFound().build();
+        }
+
+    }
+
+    @GetMapping("/student/checkJourney/{userId}/{date}")
     public ResponseEntity<Integer> checkJourney(@PathVariable UUID userId,@PathVariable LocalDate date){
 //        UUID userId = UUID.fromString(id);
         try{
-            int status = userJourneyService.attendance(userId,date);
+            int status = userJourneyService.markAttendanceStudents(userId,date);
             return ResponseEntity.ok(status);
         }catch (Exception e){
             return ResponseEntity.notFound().build();

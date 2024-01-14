@@ -12,9 +12,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import static com.example.demo.user.Permission.*;
-import static com.example.demo.user.Role.ADMIN;
-import static com.example.demo.user.Role.MANAGER;
+import static com.example.demo.Student.Permission.*;
+import static com.example.demo.Student.Role.ADMIN;
+import static com.example.demo.Student.Role.MANAGER;
 import static org.springframework.http.HttpMethod.*;
 
 @Configuration
@@ -45,8 +45,8 @@ public class SecurityConfiguration {
                 .permitAll()
                 .requestMatchers("/api/v1/qrcodes/**")
                 .permitAll()
-//                .requestMatchers("api/v1/journey/**")
-//                .permitAll()
+                .requestMatchers("api/v1/subscription/**")
+                .permitAll()
                 .requestMatchers("/api/v1/management/**").hasAnyRole(ADMIN.name(),MANAGER.name())
 
                 .requestMatchers(GET,"/api/v1/management/**").hasAnyAuthority(ADMIN_READ.name(),Manager_READ.name())

@@ -1,7 +1,7 @@
 package com.example.demo.QRcode;
 
-import com.example.demo.user.User;
-import com.example.demo.user.UserRepo;
+import com.example.demo.Student.User;
+import com.example.demo.Student.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;

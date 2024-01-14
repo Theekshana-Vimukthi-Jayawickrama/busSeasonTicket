@@ -7,7 +7,7 @@ import com.example.demo.busRoutes.BusRouteRepository;
 import com.example.demo.config.JwtService;
 import com.example.demo.demo.EmailAlreadyExistsException;
 import com.example.demo.demo.UserService;
-import com.example.demo.user.*;
+import com.example.demo.Student.*;
 import com.example.demo.util.ImageUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -81,7 +81,7 @@ public class AuthenticationService {
         StuBusDetails stuBusDetails = stuBusRoute(route,charge,nearestDeport);
 
        var user = User.builder()
-                .fullname(request.getFullname())
+               .fullName(request.getFullname())
                 .intName(request.getIntName())
                 .email(email)
                 .stuBusDetails(stuBusDetails)
@@ -95,7 +95,7 @@ public class AuthenticationService {
                 .address(request.getAddress())
                 .status("Pending".trim().toLowerCase())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.USER)
+                .role(Role.STUDENT)
                 .build();
 
         //Approval file save
@@ -344,7 +344,7 @@ public class AuthenticationService {
         Optional<User> user = repository.findById(userId);
 
         if(user.isPresent()){
-            return  user.get().getFullname();
+            return  user.get().getIntName();
         }else{
             return "No name";
         }

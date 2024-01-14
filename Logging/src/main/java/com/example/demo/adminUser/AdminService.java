@@ -1,7 +1,7 @@
 package com.example.demo.adminUser;
 
-import com.example.demo.user.User;
-import com.example.demo.user.UserRepo;
+import com.example.demo.Student.User;
+import com.example.demo.Student.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
@@ -64,7 +64,7 @@ public class AdminService {
             for (User user : users) {
                 if (Objects.equals(user.getStatus(), "pending".toLowerCase().trim())) {
                     PendingUserResponse pendingUser = PendingUserResponse.builder()
-                            .userName(user.getFullname())
+                            .userName(user.getFullName())
                             .id(user.getId())
                             .status(user.getStatus())
                             .build();
@@ -88,7 +88,7 @@ public class AdminService {
                 SimpleMailMessage message = new SimpleMailMessage();
                 String toEmail = user.getEmail();
                 message.setTo(toEmail);
-                message.setSubject("Congratulations" + user.getFullname() + "!");
+                message.setSubject("Congratulations" + user.getFullName() + "!");
                 message.setText("You're eligible for our service. You can now log into your user account and make a payment to get the season ticket.");
                 emailSender.send(message);
                 userRepo.save(user);
@@ -97,7 +97,7 @@ public class AdminService {
                 SimpleMailMessage message = new SimpleMailMessage();
                 String toEmail = user.getEmail();
                 message.setTo(toEmail);
-                message.setSubject( user.getFullname() + ",I regret to share that, based on the credentials provided.");
+                message.setSubject( user.getFullName() + ",I regret to share that, based on the credentials provided.");
                 message.setText("\n" +
                         "Apologies, it seems that the credentials provided aren't meeting the eligibility criteria for our service. Therefore, we're unable to accept them for accessing the user account or making the payment for the season ticket. Please try again with different credentials. It's possible that the ones provided don't meet the requirements for accessing our service.");
                 emailSender.send(message);

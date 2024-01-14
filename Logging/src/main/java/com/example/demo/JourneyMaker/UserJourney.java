@@ -1,6 +1,6 @@
 package com.example.demo.JourneyMaker;
 
-import com.example.demo.user.User;
+import com.example.demo.Student.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

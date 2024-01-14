@@ -1,7 +1,8 @@
 package com.example.demo.JourneyMaker;
 
-import com.example.demo.user.User;
-import com.example.demo.user.UserRepo;
+import com.example.demo.Student.Role;
+import com.example.demo.Student.User;
+import com.example.demo.Student.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -38,9 +39,13 @@ public class DailyJourneyUpdater {
                 boolean hasJourneyYesterday = checkJourneyForUserYesterday(user.getId(), yesterday);
 
                 if(!hasJourneyYesterday){
-
-                    String email = user.getEmail();
-                    userJourneyService.updateUserJourney( yesterday, false, email);
+                    if(user.getRole() == Role.STUDENT){
+                        String email = user.getEmail();
+                        userJourneyService.updateStudentJourney( yesterday, false, email);
+                    }else{
+                        String email = user.getEmail();
+                        userJourneyService.checkDays( yesterday, false, email);
+                    }
                 }
             }
             // Update the journey count for the user based on yesterday's journey

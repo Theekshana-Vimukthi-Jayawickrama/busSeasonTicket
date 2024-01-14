@@ -1,7 +1,7 @@
 package com.example.demo.QRcode;
 
-import com.example.demo.user.User;
-import com.example.demo.user.UserRepo;
+import com.example.demo.Student.User;
+import com.example.demo.Student.UserRepo;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
