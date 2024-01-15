@@ -10,7 +10,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
-import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,7 +45,10 @@ public class JwtService {
     public static String generateToken(
             Map<String, Object> extraClaims,
             UserDetails userDetails
+
+
     ){
+
         return Jwts
                 .builder()
                 .setClaims(extraClaims)
@@ -57,8 +59,25 @@ public class JwtService {
                 .compact(); // compact is the one that will generate and return the token.
     }
 
-    public static String generateToken(UserDetails userDetails){ // not get all clams, get only user details
-        return generateToken(new HashMap<>(), userDetails);
+    public static String generateToken( UserDetails userDetails){
+        // not get all clams, get only user details
+//        return generateToken(new HashMap<>(), userDetails);
+        Map<String, Object> claims = new HashMap<>();
+
+//        Add user details to the claims
+        claims.put("username", userDetails.getUsername());
+
+//        claims.put("userName", user.getUsername());
+//        claims.put("studentIndex", user.getSchoolDetails().getSchAddress());
+
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24))
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails){

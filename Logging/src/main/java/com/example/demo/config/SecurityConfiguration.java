@@ -1,6 +1,5 @@
 package com.example.demo.config;
 
-import jakarta.servlet.Filter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,9 +12,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import static com.example.demo.user.Permission.*;
-import static com.example.demo.user.Role.ADMIN;
-import static com.example.demo.user.Role.MANAGER;
+import static com.example.demo.User.Permission.*;
+import static com.example.demo.User.Role.ADMIN;
+import static com.example.demo.User.Role.MANAGER;
 import static org.springframework.http.HttpMethod.*;
 
 @Configuration
@@ -36,7 +35,18 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests()
                 .requestMatchers("/api/v1/auth/**")
                 .permitAll()
-
+                .requestMatchers("/api/v1/admin/**")
+                .permitAll()
+                .requestMatchers("/api/v1/payment/**")
+                .permitAll()
+                .requestMatchers("/api/v1/route/**")
+                .permitAll()
+                .requestMatchers("api/v1/journey/**")
+                .permitAll()
+                .requestMatchers("/api/v1/qrcodes/**")
+                .permitAll()
+                .requestMatchers("api/v1/subscription/**")
+                .permitAll()
                 .requestMatchers("/api/v1/management/**").hasAnyRole(ADMIN.name(),MANAGER.name())
 
                 .requestMatchers(GET,"/api/v1/management/**").hasAnyAuthority(ADMIN_READ.name(),Manager_READ.name())
