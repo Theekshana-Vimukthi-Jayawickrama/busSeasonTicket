@@ -13,8 +13,8 @@ public class UserSubscriptionController {
     private UserSubscriptionService userSubscriptionService;
 
     @GetMapping("/getTicketDetails/{userId}")
-    public ResponseEntity<StudentRespond> getTicketData(@PathVariable String userId) {
-        StudentRespond studentRespond = userSubscriptionService.getStudentTicketData(userId);
+    public ResponseEntity<UserRespond> getTicketData(@PathVariable String userId) {
+        UserRespond studentRespond = userSubscriptionService.getStudentTicketData(userId);
         return ResponseEntity.ok(studentRespond);
     }
 

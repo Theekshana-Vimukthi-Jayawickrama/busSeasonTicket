@@ -12,9 +12,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import static com.example.demo.Student.Permission.*;
-import static com.example.demo.Student.Role.ADMIN;
-import static com.example.demo.Student.Role.MANAGER;
+import static com.example.demo.User.Permission.*;
+import static com.example.demo.User.Role.ADMIN;
+import static com.example.demo.User.Role.MANAGER;
 import static org.springframework.http.HttpMethod.*;
 
 @Configuration

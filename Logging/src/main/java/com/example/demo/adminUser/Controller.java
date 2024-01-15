@@ -82,4 +82,19 @@ public class Controller {
             return ResponseEntity.badRequest().build();
         }
     }
+//    @GetMapping("/getAllUserDetails")
+//    public ResponseEntity<List<String>> getAllUserDetails(){
+//
+//        try {
+//            List<String> districts = adminService.getAllSchoolDistrict();
+//
+//            if(districts == null){
+//                return ResponseEntity.notFound().build();
+//            }else{
+//                return ResponseEntity.ok(districts);
+//            }
+//        }catch (Exception e){
+//            return ResponseEntity.badRequest().build();
+//        }
+//    }
 }

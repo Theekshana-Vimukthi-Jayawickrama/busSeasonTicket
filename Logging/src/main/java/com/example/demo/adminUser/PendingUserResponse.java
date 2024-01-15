@@ -1,5 +1,6 @@
 package com.example.demo.adminUser;
 
+import com.example.demo.User.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,4 +16,5 @@ public class PendingUserResponse {
     private String userName;
     private UUID id;
     private String status;
+    private Role role;
 }

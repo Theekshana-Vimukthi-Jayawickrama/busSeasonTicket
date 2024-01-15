@@ -1,7 +1,7 @@
 package com.example.demo.auth;
 
-import com.example.demo.Student.ApprovalLetter;
-import com.example.demo.Student.ApprovalLetterRepository;
+import com.example.demo.User.ApprovalLetter;
+import com.example.demo.User.ApprovalLetterRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -153,6 +153,17 @@ public class AuthenticationController {
         String userName = service.getName(userId);
         return ResponseEntity.ok(userName);
 
+    }
+
+    @PutMapping("/updatePassword/{userEmail}")
+    public ResponseEntity<Boolean> changePassword(@PathVariable String userEmail,@RequestBody RequestPassword requestPassword){
+        boolean status = service.changePassword(userEmail,requestPassword);
+
+        if(status){
+            return ResponseEntity.ok(true);
+        }else{
+            return ResponseEntity.ok(false);
+        }
     }
 }
 

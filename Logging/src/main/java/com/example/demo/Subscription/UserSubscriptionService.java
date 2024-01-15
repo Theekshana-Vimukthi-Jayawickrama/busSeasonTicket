@@ -1,7 +1,7 @@
 package com.example.demo.Subscription;
 
-import com.example.demo.Student.User;
-import com.example.demo.Student.UserRepo;
+import com.example.demo.User.User;
+import com.example.demo.User.UserRepo;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +51,7 @@ public class UserSubscriptionService {
                             purchaseDate = LocalDate.now().plusMonths(1).with(TemporalAdjusters.firstDayOfMonth());
                             expiredDate = LocalDate.now().plusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
                             if(user.get().getStudentSubscription().getId() == null){
-                                var userSubscription = StudentSubscription.builder()
+                                var userSubscription = UserSubscription.builder()
                                         .nextMonthSubscription(true)
                                         .startDate(purchaseDate)
                                         .endDate(expiredDate)
@@ -74,7 +74,7 @@ public class UserSubscriptionService {
                         purchaseDate = LocalDate.now().with(TemporalAdjusters.firstDayOfMonth());
                         expiredDate = LocalDate.now().with(TemporalAdjusters.lastDayOfMonth());
                         if(user.get().getStudentSubscription().getId() == null){
-                            var userSubscription = StudentSubscription.builder()
+                            var userSubscription = UserSubscription.builder()
                                     .nextMonthSubscription(false)
                                     .startDate(purchaseDate)
                                     .endDate(expiredDate)
@@ -104,7 +104,7 @@ public class UserSubscriptionService {
         return false;
     }
 
-    public StudentRespond getStudentTicketData(String userId){
+    public UserRespond getStudentTicketData(String userId){
         Optional<User> user = userRepo.findById(UUID.fromString(userId));
         String expiredDate;
         String purchaseDate;
@@ -140,7 +140,7 @@ public class UserSubscriptionService {
                     daysDifference = (int) ChronoUnit.DAYS.between(user.get().getStudentSubscription().getStartDate(), user.get().getStudentSubscription().getEndDate() );
                 }
             }
-            return StudentRespond.builder()
+            return UserRespond.builder()
                     .availableDays(daysDifference)
                     .expiredDate( expiredDate)
                     .purchaseDate( purchaseDate )

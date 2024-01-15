@@ -1,7 +1,7 @@
 package com.example.demo.Subscription;
 
-import com.example.demo.Student.User;
-import com.example.demo.Student.UserRepo;
+import com.example.demo.User.User;
+import com.example.demo.User.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;

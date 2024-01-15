@@ -1,8 +1,8 @@
 package com.example.demo.JourneyMaker;
 
-import com.example.demo.Student.Role;
-import com.example.demo.Student.User;
-import com.example.demo.Student.UserRepo;
+import com.example.demo.User.Role;
+import com.example.demo.User.User;
+import com.example.demo.User.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -42,7 +42,7 @@ public class DailyJourneyUpdater {
                     if(user.getRole() == Role.STUDENT){
                         String email = user.getEmail();
                         userJourneyService.updateStudentJourney( yesterday, false, email);
-                    }else{
+                    }else if(user.getRole() == Role.ADULT){
                         String email = user.getEmail();
                         userJourneyService.checkDays( yesterday, false, email);
                     }

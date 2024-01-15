@@ -1,6 +1,6 @@
 package com.example.demo.auth;
 
-import com.example.demo.Student.Role;
+import com.example.demo.User.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

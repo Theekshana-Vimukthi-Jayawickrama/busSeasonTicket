@@ -1,10 +1,10 @@
-package com.example.demo.Student;
+package com.example.demo.User;
 
 import com.example.demo.JourneyMaker.SelectDays;
 import com.example.demo.JourneyMaker.UserJourney;
 import com.example.demo.OTPGenerator.OTP;
 import com.example.demo.QRcode.QRCode;
-import com.example.demo.Subscription.StudentSubscription;
+import com.example.demo.Subscription.UserSubscription;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -72,7 +72,7 @@ public class User implements UserDetails {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinTable(name ="stu_subscription", joinColumns = {@JoinColumn(name = "fk_stu")},
             inverseJoinColumns = {@JoinColumn(name = "fk_subscription")})
-    private StudentSubscription studentSubscription;
+    private UserSubscription studentSubscription;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "fk_school_id")
@@ -87,10 +87,15 @@ public class User implements UserDetails {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinTable(name ="User_userPhoto", joinColumns = {@JoinColumn(name = "fk_user")},
             inverseJoinColumns = {@JoinColumn(name = "fk_userPhoto")})
-    private StudentPhotos userPhoto;
+    private UserPhotos userPhoto;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinTable(name ="user_approvalLetter", joinColumns = {@JoinColumn(name = "fk_user")},
+    @JoinTable(name ="Adult_userNICPhoto", joinColumns = {@JoinColumn(name = "fk_Adult")},
+            inverseJoinColumns = {@JoinColumn(name = "fk_userNICPhoto")})
+    private AdultNIC adultNIC;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinTable(name ="student_approvalLetter", joinColumns = {@JoinColumn(name = "fk_student")},
             inverseJoinColumns = {@JoinColumn(name = "fk_approvalLetter")})
     private ApprovalLetter approvalLetter;
 

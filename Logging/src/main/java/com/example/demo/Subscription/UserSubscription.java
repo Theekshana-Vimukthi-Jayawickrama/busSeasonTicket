@@ -14,7 +14,7 @@ import java.time.LocalDate;
 @Data
 @Builder
 @Entity
-public class StudentSubscription {
+public class UserSubscription {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

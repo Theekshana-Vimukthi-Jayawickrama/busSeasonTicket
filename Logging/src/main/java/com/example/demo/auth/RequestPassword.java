@@ -1,4 +1,4 @@
-package com.example.demo.adminUser;
+package com.example.demo.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,9 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class UserUpdateRequest {
-    private boolean status;
+public class RequestPassword {
+    private String password;
 }

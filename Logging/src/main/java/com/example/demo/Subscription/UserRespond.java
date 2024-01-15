@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class StudentRespond {
+public class UserRespond {
     private String purchaseDate;
     private  String expiredDate;
     private Integer availableDays;

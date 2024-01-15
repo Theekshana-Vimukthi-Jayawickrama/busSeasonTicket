@@ -1,5 +1,6 @@
 package com.example.demo.auth;
 
+import com.example.demo.JourneyMaker.SelectDays;
 import com.example.demo.OTPGenerator.OTP;
 import com.example.demo.OTPGenerator.OTPRepository;
 import com.example.demo.busRoutes.BusRoute;
@@ -7,7 +8,7 @@ import com.example.demo.busRoutes.BusRouteRepository;
 import com.example.demo.config.JwtService;
 import com.example.demo.demo.EmailAlreadyExistsException;
 import com.example.demo.demo.UserService;
-import com.example.demo.Student.*;
+import com.example.demo.User.*;
 import com.example.demo.util.ImageUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -114,7 +115,7 @@ public class AuthenticationService {
         }
 
         //photo
-        StudentPhotos userPhoto1 = userPhotoUpload(userPhoto);
+        UserPhotos userPhoto1 = userPhotoUpload(userPhoto);
         if(userPhoto1==null){
             throw new Exception("File could not be saved");
         }else{
@@ -126,6 +127,81 @@ public class AuthenticationService {
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();
+    }
+    @Transactional
+    public AuthenticationResponse AdultRegister(RegisterRequest request,RouteDaysSelectionRequest daysSelectionRequest,  RouteRequest routeRequest, MultipartFile userPhoto, MultipartFile NICPhoto) throws Exception {
+
+        String email = request.getEmail();
+        // Check if email already exists
+        if (!userService.isEmailUnique(email)) {
+            // Handle duplicate email error.
+            throw new EmailAlreadyExistsException("Email already exists");
+        }
+
+        SelectDays selectDays = SelectDays.builder()
+                .friday(daysSelectionRequest.isFriday())
+                .monday(daysSelectionRequest.isMonday())
+                .sunday(daysSelectionRequest.isSunday())
+                .saturday(daysSelectionRequest.isSaturday())
+                .tuesday(daysSelectionRequest.isTuesday())
+                .thursday(daysSelectionRequest.isThursday())
+                .wednesday(daysSelectionRequest.isWednesday())
+                .build();
+
+        String route = routeRequest.getRoute();
+        String nearestDeport =routeRequest.getNearestDeport();
+        Double charge = routeRequest.getCharge();
+        StuBusDetails stuBusDetails = stuBusRoute(route,charge,nearestDeport);
+
+        var user = User.builder()
+                .fullName(request.getFullname())
+                .intName(request.getIntName())
+                .email(email)
+                .selectDays(selectDays)
+                .stuBusDetails(stuBusDetails)
+                .gender(request.getGender())
+                .dob(request.getDob())
+                .telephoneNumber(request.getTelephone())
+                .residence(request.getResidence())
+                .verified(false)
+                .address(request.getAddress())
+                .status("Pending".trim().toLowerCase())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(Role.ADULT)
+                .build();
+
+        AdultNIC userNIC = userNICPhoto(NICPhoto);
+        if(userNIC==null){
+            throw new Exception("File could not be saved");
+        }else{
+            user.setAdultNIC(userNIC);
+        }
+        //photo
+        UserPhotos userPhoto1 = userPhotoUpload(userPhoto);
+        if(userPhoto1==null){
+            throw new Exception("File could not be saved");
+        }else{
+            user.setUserPhoto(userPhoto1);
+        }
+
+        repository.save(user);
+        var jwtToken = JwtService.generateToken(user);
+        return AuthenticationResponse.builder()
+                .token(jwtToken)
+                .build();
+    }
+    @Transactional
+    public AdultNIC userNICPhoto (MultipartFile file){
+
+        try {
+            AdultNIC photo = new AdultNIC();
+            photo.setUserPhotoName(file.getOriginalFilename());
+            photo.setPhotoType(file.getContentType());
+            photo.setData(file.getBytes());
+            return photo;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     //Student PDF letter
@@ -158,10 +234,10 @@ public class AuthenticationService {
         }
     }
 @Transactional
-    public StudentPhotos userPhotoUpload (MultipartFile file){
+    public UserPhotos userPhotoUpload (MultipartFile file){
 
         try {
-            StudentPhotos photo = new StudentPhotos();
+            UserPhotos photo = new UserPhotos();
             photo.setUserPhotoName(file.getOriginalFilename());
             photo.setPhotoType(file.getContentType());
             photo.setData(file.getBytes());
@@ -321,6 +397,7 @@ public class AuthenticationService {
             return AuthenticationResponse.builder()
                     .token(jwtToken)
                     .userId(user.getId())
+                    .role(user.getRole().toString())
                     .build();
         }else{
             return null;
@@ -349,5 +426,17 @@ public class AuthenticationService {
             return "No name";
         }
 
+    }
+    public boolean changePassword(String userEmail, RequestPassword requestPassword) {
+        Optional<User> user = repository.findByEmail(userEmail);
+        if(user.isPresent()&& Objects.equals(user.get().getStatus(), "active".trim().toLowerCase())){
+            user.ifPresent(userUpdate ->{
+                userUpdate.setPassword( passwordEncoder.encode(requestPassword.getPassword()));
+                repository.save(userUpdate);
+            });
+            return true;
+        }else {
+            return false;
+        }
     }
 }

@@ -1,7 +1,7 @@
 package com.example.demo.adminUser;
 
-import com.example.demo.Student.User;
-import com.example.demo.Student.UserRepo;
+import com.example.demo.User.User;
+import com.example.demo.User.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
@@ -66,6 +66,7 @@ public class AdminService {
                     PendingUserResponse pendingUser = PendingUserResponse.builder()
                             .userName(user.getFullName())
                             .id(user.getId())
+                            .role(user.getRole())
                             .status(user.getStatus())
                             .build();
                     userName.add(pendingUser);
@@ -78,13 +79,20 @@ public class AdminService {
     public boolean userStatusUpdate(UUID userId, UserUpdateRequest userUpdateRequest) {
 
         Optional<User> optionalUser = userRepo.findById(userId);
+        String userStatus;
+
+        if(userUpdateRequest.isStatus()){
+            userStatus = "active".toLowerCase().trim();
+        }else{
+            userStatus = "delete".toLowerCase().trim();
+        }
 
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
-            user.setStatus(userUpdateRequest.getStatus().trim().toLowerCase());
+            user.setStatus(userStatus);
             // Send approval email logic can go here
 
-            if(userUpdateRequest.getStatus().toLowerCase().trim().equals("pending".toLowerCase().trim())){
+            if(userStatus.toLowerCase().trim().equals("active".toLowerCase().trim())){
                 SimpleMailMessage message = new SimpleMailMessage();
                 String toEmail = user.getEmail();
                 message.setTo(toEmail);
@@ -93,7 +101,7 @@ public class AdminService {
                 emailSender.send(message);
                 userRepo.save(user);
                 return true;
-            }else{
+            }else if(userStatus.toLowerCase().trim().equals("delete".toLowerCase().trim())){
                 SimpleMailMessage message = new SimpleMailMessage();
                 String toEmail = user.getEmail();
                 message.setTo(toEmail);
@@ -101,14 +109,14 @@ public class AdminService {
                 message.setText("\n" +
                         "Apologies, it seems that the credentials provided aren't meeting the eligibility criteria for our service. Therefore, we're unable to accept them for accessing the user account or making the payment for the season ticket. Please try again with different credentials. It's possible that the ones provided don't meet the requirements for accessing our service.");
                 emailSender.send(message);
-                userRepo.save(user);
+                userRepo.deleteById(userId);
                 return true;
             }
 
         }else{
             return false;
         }
-
+        return false;
     }
 
 

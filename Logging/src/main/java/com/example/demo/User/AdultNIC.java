@@ -1,4 +1,4 @@
-package com.example.demo.Student;
+package com.example.demo.User;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Entity
 @Builder
-public class StudentPhotos {
+public class AdultNIC {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -25,7 +25,6 @@ public class StudentPhotos {
     @Column(name = "Data", columnDefinition = "LONGBLOB" )
     private byte[] data;
 
-    @OneToOne(mappedBy = "userPhoto")
+    @OneToOne(mappedBy = "adultNIC")
     private User user;
 }
-

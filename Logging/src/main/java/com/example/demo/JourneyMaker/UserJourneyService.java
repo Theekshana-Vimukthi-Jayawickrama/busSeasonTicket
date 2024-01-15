@@ -1,12 +1,13 @@
 package com.example.demo.JourneyMaker;
 
-import com.example.demo.Student.User;
-import com.example.demo.Student.UserRepo;
+import com.example.demo.User.User;
+import com.example.demo.User.UserRepo;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -26,7 +27,11 @@ public class UserJourneyService {
         try {
             Optional<User> userOptional = userRepo.findByEmail(email);
             DayOfWeek dayOfWeek = date.getDayOfWeek();
+
             if (userOptional.isPresent()) {
+                User user = userOptional.get();
+                UUID userId = user.getId();
+                String userEmail = user.getEmail();
 
                 switch (dayOfWeek) {
                     case MONDAY:
@@ -34,52 +39,152 @@ public class UserJourneyService {
                             return updateStudentJourney(date,hasJourney,email);
 
                     }else{
-                            return "day not available for user";
+                            int journeyCount = 500;
+                            List<UserJourney>userJourneys = userJourneyRepository.findByUserAndDate(user,date,journeyCount);
+                            if(userJourneys.isEmpty()){
+                                UserJourney userJourney = UserJourney.builder()
+                                        .user(user)
+                                        .email(userEmail)
+                                        .userId(userId)
+                                        .journeyDate(date)
+                                        .journeyCount(500)
+                                        .build();
+
+                                user.getJourneys().add(userJourney);
+                                userRepo.save(user);
+                            }
+
+                            return "This day not available for user";
                         }
                     case TUESDAY:
                         if(userOptional.get().getSelectDays().isTuesday()){
                             return   updateStudentJourney(date,hasJourney,email);
 
                         }else{
-                            return "day not available for user";
+                            int journeyCount = 500;
+                            List<UserJourney>userJourneys = userJourneyRepository.findByUserAndDate(user,date,journeyCount);
+                            if(userJourneys.isEmpty()){
+                                UserJourney userJourney = UserJourney.builder()
+                                        .user(user)
+                                        .email(userEmail)
+                                        .userId(userId)
+                                        .journeyDate(date)
+                                        .journeyCount(500)
+                                        .build();
+
+                                user.getJourneys().add(userJourney);
+                                userRepo.save(user);
+                            }
+                            return "This day not available for user";
                         }
                     case WEDNESDAY:
                         if(userOptional.get().getSelectDays().isWednesday()){
                             return  updateStudentJourney(date,hasJourney,email);
 
                         }else{
-                            return "day not available for user";
+                            int journeyCount = 500;
+                            List<UserJourney>userJourneys = userJourneyRepository.findByUserAndDate(user,date,journeyCount);
+                            if(userJourneys.isEmpty()){
+                                UserJourney userJourney = UserJourney.builder()
+                                        .user(user)
+                                        .email(userEmail)
+                                        .userId(userId)
+                                        .journeyDate(date)
+                                        .journeyCount(500)
+                                        .build();
+
+                                user.getJourneys().add(userJourney);
+                                userRepo.save(user);
+                            }
+                            return "This day not available for user";
                         }
                     case THURSDAY:
                         if(userOptional.get().getSelectDays().isThursday()){
                             return  updateStudentJourney(date,hasJourney,email);
 
                         }else{
-                            return "day not available for user";
+                            int journeyCount = 500;
+                            List<UserJourney>userJourneys = userJourneyRepository.findByUserAndDate(user,date,journeyCount);
+                            if(userJourneys.isEmpty()){
+                                UserJourney userJourney = UserJourney.builder()
+                                        .user(user)
+                                        .email(userEmail)
+                                        .userId(userId)
+                                        .journeyDate(date)
+                                        .journeyCount(500)
+                                        .build();
+
+                                user.getJourneys().add(userJourney);
+                                userRepo.save(user);
+                            }
+                            return "This day not available for user";
                         }
                     case FRIDAY:
                         if(userOptional.get().getSelectDays().isFriday()){
+
                             return  updateStudentJourney(date,hasJourney,email);
 
                         }else{
-                            return "day not available for user";
+                            int journeyCount = 500;
+                            List<UserJourney>userJourneys = userJourneyRepository.findByUserAndDate(user,date,journeyCount);
+                            if(userJourneys.isEmpty()){
+                                UserJourney userJourney = UserJourney.builder()
+                                        .user(user)
+                                        .email(userEmail)
+                                        .userId(userId)
+                                        .journeyDate(date)
+                                        .journeyCount(500)
+                                        .build();
+
+                                user.getJourneys().add(userJourney);
+                                userRepo.save(user);
+                            }
+                            return "This day not available for user";
                         }
                     case SATURDAY:
                         if(userOptional.get().getSelectDays().isSaturday()){
                             return  updateStudentJourney(date,hasJourney,email);
 
                         }else{
-                            return "day not available for user";
+                            int journeyCount = 500;
+                            List<UserJourney>userJourneys = userJourneyRepository.findByUserAndDate(user,date,journeyCount);
+                            if(userJourneys.isEmpty()){
+                                UserJourney userJourney = UserJourney.builder()
+                                        .user(user)
+                                        .email(userEmail)
+                                        .userId(userId)
+                                        .journeyDate(date)
+                                        .journeyCount(500)
+                                        .build();
+
+                                user.getJourneys().add(userJourney);
+                                userRepo.save(user);
+                            }
+                            return "This day not available for user";
                         }
                     case SUNDAY:
                         if(userOptional.get().getSelectDays().isSunday()){
                             return  updateStudentJourney(date,hasJourney,email);
 
                         }else{
-                            return "day not available for user";
+                            int journeyCount = 500;
+                            List<UserJourney>userJourneys = userJourneyRepository.findByUserAndDate(user,date,journeyCount);
+                            if(userJourneys.isEmpty()){
+                                UserJourney userJourney = UserJourney.builder()
+                                        .user(user)
+                                        .email(userEmail)
+                                        .userId(userId)
+                                        .journeyDate(date)
+                                        .journeyCount(500)
+                                        .build();
+
+                                user.getJourneys().add(userJourney);
+                                userRepo.save(user);
+                            }
+                            return "This day not available for user";
                         }
                     default:
-                        return "day not available.";
+                        return "This input is invalid.";
                 }
             }
         }catch (Exception e){
