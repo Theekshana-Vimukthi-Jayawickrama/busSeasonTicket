@@ -67,7 +67,7 @@ public class User implements UserDetails {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinTable(name ="stu_bus", joinColumns = {@JoinColumn(name = "fk_stu")},
             inverseJoinColumns = {@JoinColumn(name = "fk_bus")})
-    private StuBusDetails stuBusDetails;
+    private UserBusDetails userBusDetails;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinTable(name ="stu_subscription", joinColumns = {@JoinColumn(name = "fk_stu")},
@@ -77,7 +77,6 @@ public class User implements UserDetails {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "fk_school_id")
     private SchoolDetails schoolDetails;
-
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinTable(name ="stu_birthFile", joinColumns = {@JoinColumn(name = "fk_stu")},
@@ -90,9 +89,15 @@ public class User implements UserDetails {
     private UserPhotos userPhoto;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinTable(name ="Adult_userNICPhoto", joinColumns = {@JoinColumn(name = "fk_Adult")},
-            inverseJoinColumns = {@JoinColumn(name = "fk_userNICPhoto")})
-    private AdultNIC adultNIC;
+    @JoinTable(name ="Adult_NICBackSidePhoto", joinColumns = {@JoinColumn(name = "fk_Adult_Id")},
+            inverseJoinColumns = {@JoinColumn(name = "fk_userNICBackPhoto")})
+    private NICAdultBack adultBackNIC;
+
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinTable(name ="Adult_NICFrontPhoto", joinColumns = {@JoinColumn(name = "fk_Adult")},
+            inverseJoinColumns = {@JoinColumn(name = "fk_NICFrontPhoto")})
+    private NICAdultFront adultFrontNIC;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinTable(name ="student_approvalLetter", joinColumns = {@JoinColumn(name = "fk_student")},

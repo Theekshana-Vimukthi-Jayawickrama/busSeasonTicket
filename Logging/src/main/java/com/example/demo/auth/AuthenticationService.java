@@ -3,12 +3,12 @@ package com.example.demo.auth;
 import com.example.demo.JourneyMaker.SelectDays;
 import com.example.demo.OTPGenerator.OTP;
 import com.example.demo.OTPGenerator.OTPRepository;
+import com.example.demo.User.*;
 import com.example.demo.busRoutes.BusRoute;
 import com.example.demo.busRoutes.BusRouteRepository;
 import com.example.demo.config.JwtService;
 import com.example.demo.demo.EmailAlreadyExistsException;
 import com.example.demo.demo.UserService;
-import com.example.demo.User.*;
 import com.example.demo.util.ImageUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -79,13 +79,13 @@ public class AuthenticationService {
         String route = routeRequest.getRoute();
         String nearestDeport =routeRequest.getNearestDeport();
         Double charge = routeRequest.getCharge();
-        StuBusDetails stuBusDetails = stuBusRoute(route,charge,nearestDeport);
+        UserBusDetails stuBusDetails = stuBusRoute(route,charge,nearestDeport);
 
        var user = User.builder()
                .fullName(request.getFullname())
                 .intName(request.getIntName())
                 .email(email)
-                .stuBusDetails(stuBusDetails)
+                .userBusDetails(stuBusDetails)
                 .schoolDetails(schoolDetails)
                 .guardianDetails(guardianDetails)
                 .gender(request.getGender())
@@ -128,8 +128,8 @@ public class AuthenticationService {
                 .token(jwtToken)
                 .build();
     }
-    @Transactional
-    public AuthenticationResponse AdultRegister(RegisterRequest request,RouteDaysSelectionRequest daysSelectionRequest,  RouteRequest routeRequest, MultipartFile userPhoto, MultipartFile NICPhoto) throws Exception {
+
+    public AuthenticationResponse adultRegister(RegisterRequest request,RouteDaysSelectionRequest daysSelectionRequest,  RouteRequest routeRequest, MultipartFile userPhoto, MultipartFile NICFrontPhoto,MultipartFile NICBackPhoto) throws Exception {
 
         String email = request.getEmail();
         // Check if email already exists
@@ -151,14 +151,14 @@ public class AuthenticationService {
         String route = routeRequest.getRoute();
         String nearestDeport =routeRequest.getNearestDeport();
         Double charge = routeRequest.getCharge();
-        StuBusDetails stuBusDetails = stuBusRoute(route,charge,nearestDeport);
+        UserBusDetails stuBusDetails = stuBusRoute(route,charge,nearestDeport);
 
         var user = User.builder()
                 .fullName(request.getFullname())
                 .intName(request.getIntName())
                 .email(email)
                 .selectDays(selectDays)
-                .stuBusDetails(stuBusDetails)
+                .userBusDetails(stuBusDetails)
                 .gender(request.getGender())
                 .dob(request.getDob())
                 .telephoneNumber(request.getTelephone())
@@ -170,11 +170,17 @@ public class AuthenticationService {
                 .role(Role.ADULT)
                 .build();
 
-        AdultNIC userNIC = userNICPhoto(NICPhoto);
-        if(userNIC==null){
+        NICAdultBack userBackNIC = userNICBackPhoto(NICBackPhoto);
+        if(userBackNIC==null){
             throw new Exception("File could not be saved");
         }else{
-            user.setAdultNIC(userNIC);
+            user.setAdultBackNIC(userBackNIC);
+        }
+        NICAdultFront userFrontNIC = userNICFrontPhoto(NICFrontPhoto);
+        if(userFrontNIC==null){
+            throw new Exception("File could not be saved");
+        }else{
+            user.setAdultFrontNIC(userFrontNIC);
         }
         //photo
         UserPhotos userPhoto1 = userPhotoUpload(userPhoto);
@@ -190,11 +196,24 @@ public class AuthenticationService {
                 .token(jwtToken)
                 .build();
     }
-    @Transactional
-    public AdultNIC userNICPhoto (MultipartFile file){
+
+    public NICAdultBack userNICBackPhoto (MultipartFile file){
 
         try {
-            AdultNIC photo = new AdultNIC();
+            NICAdultBack photo = new NICAdultBack();
+            photo.setPhotoNICBackName(file.getOriginalFilename());
+            photo.setNICType(file.getContentType());
+            photo.setData(file.getBytes());
+            return photo;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public NICAdultFront userNICFrontPhoto (MultipartFile file){
+
+        try {
+            NICAdultFront photo = new NICAdultFront();
             photo.setUserPhotoName(file.getOriginalFilename());
             photo.setPhotoType(file.getContentType());
             photo.setData(file.getBytes());
@@ -253,13 +272,13 @@ public class AuthenticationService {
     }
 
     //BusRoute that student will go...
-    public StuBusDetails stuBusRoute(String route, Double charge,String nearestDeport){
+    public UserBusDetails stuBusRoute(String route, Double charge, String nearestDeport){
         BusRoute busRoute = busRouteRepository.findByRoute(route);
         try {
             if (busRoute != null) {
                 String distance = busRoute.getDistance();
 
-                return StuBusDetails.builder()
+                return UserBusDetails.builder()
                         .charge(charge)
                         .distance(distance)
                         .route(route)

@@ -20,13 +20,7 @@ public class UserJourneyController {
         try{
             LocalDate date =LocalDate.now();
             String status = userJourneyService.updateStudentJourney(date, request.isHasJourney(), request.getEmail());
-            if(Objects.equals(status, "Updated")){
-                return ResponseEntity.ok("Updated");
-            }else if(Objects.equals(status, "Not verified")){
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Not verified");
-            }else{
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User Not Found");
-            }
+            return ResponseEntity.ok(status);
         }catch (Exception e){
             e.printStackTrace();
             return ResponseEntity.notFound().build();
@@ -59,6 +53,18 @@ public class UserJourneyController {
         try{
             int status = userJourneyService.markAttendanceStudents(userId,date);
             return ResponseEntity.ok(status);
+        }catch (Exception e){
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+
+    @GetMapping("/adult/daySelection/{userId}")
+    public ResponseEntity<RouteDaysSelectionResponse> checkDaysThatSelected(@PathVariable UUID userId){
+//        UUID userId = UUID.fromString(id);
+        try{
+            RouteDaysSelectionResponse routeDaysSelectionResponse = userJourneyService.getSelectedDaysByAdult(userId);
+            return ResponseEntity.ok(routeDaysSelectionResponse);
         }catch (Exception e){
             return ResponseEntity.notFound().build();
         }

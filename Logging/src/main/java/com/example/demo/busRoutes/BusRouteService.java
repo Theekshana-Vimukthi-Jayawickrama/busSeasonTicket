@@ -53,4 +53,20 @@ public class BusRouteService {
         }
         return null;
     }
+    public Double calculateChargeAdult(String route){
+        BusRoute busRoutes = busRouteRepository.findByRoute(route);
+
+        LocalDate today = LocalDate.now();
+        //TemporalAdjusters.lastDayOfMonth() is used in combination with the with() method of LocalDate to obtain the last day of the current month.
+        LocalDate endOfMonth = today.with(TemporalAdjusters.lastDayOfMonth());
+        //ChronoUnit.DAYS.between(date1, date2) calculates the number of days between date1 and date2
+        long daysBetween = ChronoUnit.DAYS.between(today, endOfMonth);
+
+        if(busRoutes.getRoute().equals(route)){
+            Double charge = busRoutes.getPerDayCharge();
+            Double adultCharge = ((charge *60) / 100) * daysBetween;
+            return adultCharge;
+        }
+        return null;
+    }
 }

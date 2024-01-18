@@ -116,20 +116,20 @@ public class UserSubscriptionService {
 
             if(user.get().getStudentSubscription() == null){
 
-                    expiredDate = "0000/00/00";
+                    expiredDate = "0000-00-00";
 
-                    purchaseDate = "0000/00/00";
+                    purchaseDate = "0000-00-00";
 
                     daysDifference = 0;
 
             }else{
                 if(user.get().getStudentSubscription().getEndDate() == null){
-                    expiredDate = "0000/00/00";
+                    expiredDate = "0000-00-00";
                 }else{
                     expiredDate = user.get().getStudentSubscription().getEndDate().toString();
                 }
                 if( user.get().getStudentSubscription().getStartDate() == null){
-                    purchaseDate = "0000/00/00";
+                    purchaseDate = "0000-00-00";
                 }else{
                     purchaseDate = user.get().getStudentSubscription().getStartDate().toString();
                 }

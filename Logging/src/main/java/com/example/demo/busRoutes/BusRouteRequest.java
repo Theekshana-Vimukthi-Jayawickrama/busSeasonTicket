@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class BusRouteRequest {
     private String route;
-    private Integer routeNo;
+    private String routeNo;
     private String distance;
     private Double perDayCharge;
 }

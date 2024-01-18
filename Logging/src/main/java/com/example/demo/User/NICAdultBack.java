@@ -11,20 +11,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Entity
 @Builder
-public class AdultNIC {
+@Table(name = "AdultNICBackSide")
+public class NICAdultBack {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String userPhotoName;
+    private String photoNICBackName;
 
-    private String PhotoType;
+    private String NICType;
 
     //columnDefinition = "LONGBLOB"
     @Lob
     @Column(name = "Data", columnDefinition = "LONGBLOB" )
     private byte[] data;
 
-    @OneToOne(mappedBy = "adultNIC")
-    private User user;
 }

@@ -1,6 +1,5 @@
-package com.example.demo.busRoutes;
+package com.example.demo.User;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -14,17 +13,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class BusRoute {
-
+public class UserBusDetails {
     @Id
     @GeneratedValue
     private Integer id;
-
-    @Column(unique = true)
     private String route;
-    private String routeNo;
     private String distance;
-    private Double perDayCharge;
-
-
+    private Double charge;
+    private String nearestDeport;
 }

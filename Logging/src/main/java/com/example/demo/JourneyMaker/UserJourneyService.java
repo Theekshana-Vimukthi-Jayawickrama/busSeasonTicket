@@ -1,5 +1,6 @@
 package com.example.demo.JourneyMaker;
 
+import com.example.demo.User.Role;
 import com.example.demo.User.User;
 import com.example.demo.User.UserRepo;
 import jakarta.transaction.Transactional;
@@ -40,7 +41,7 @@ public class UserJourneyService {
 
                     }else{
                             int journeyCount = 500;
-                            List<UserJourney>userJourneys = userJourneyRepository.findByUserAndDate(user,date,journeyCount);
+                            List<UserJourney>userJourneys = userJourneyRepository.findByUserAndJourneyDate(user,date);
                             if(userJourneys.isEmpty()){
                                 UserJourney userJourney = UserJourney.builder()
                                         .user(user)
@@ -62,7 +63,7 @@ public class UserJourneyService {
 
                         }else{
                             int journeyCount = 500;
-                            List<UserJourney>userJourneys = userJourneyRepository.findByUserAndDate(user,date,journeyCount);
+                            List<UserJourney>userJourneys = userJourneyRepository.findByUserAndJourneyDate(user,date);
                             if(userJourneys.isEmpty()){
                                 UserJourney userJourney = UserJourney.builder()
                                         .user(user)
@@ -83,7 +84,7 @@ public class UserJourneyService {
 
                         }else{
                             int journeyCount = 500;
-                            List<UserJourney>userJourneys = userJourneyRepository.findByUserAndDate(user,date,journeyCount);
+                            List<UserJourney>userJourneys = userJourneyRepository.findByUserAndJourneyDate(user,date);
                             if(userJourneys.isEmpty()){
                                 UserJourney userJourney = UserJourney.builder()
                                         .user(user)
@@ -104,7 +105,7 @@ public class UserJourneyService {
 
                         }else{
                             int journeyCount = 500;
-                            List<UserJourney>userJourneys = userJourneyRepository.findByUserAndDate(user,date,journeyCount);
+                            List<UserJourney>userJourneys = userJourneyRepository.findByUserAndJourneyDate(user,date);
                             if(userJourneys.isEmpty()){
                                 UserJourney userJourney = UserJourney.builder()
                                         .user(user)
@@ -126,7 +127,7 @@ public class UserJourneyService {
 
                         }else{
                             int journeyCount = 500;
-                            List<UserJourney>userJourneys = userJourneyRepository.findByUserAndDate(user,date,journeyCount);
+                            List<UserJourney>userJourneys = userJourneyRepository.findByUserAndJourneyDate(user,date);
                             if(userJourneys.isEmpty()){
                                 UserJourney userJourney = UserJourney.builder()
                                         .user(user)
@@ -147,7 +148,7 @@ public class UserJourneyService {
 
                         }else{
                             int journeyCount = 500;
-                            List<UserJourney>userJourneys = userJourneyRepository.findByUserAndDate(user,date,journeyCount);
+                            List<UserJourney>userJourneys = userJourneyRepository.findByUserAndJourneyDate(user,date);
                             if(userJourneys.isEmpty()){
                                 UserJourney userJourney = UserJourney.builder()
                                         .user(user)
@@ -168,7 +169,7 @@ public class UserJourneyService {
 
                         }else{
                             int journeyCount = 500;
-                            List<UserJourney>userJourneys = userJourneyRepository.findByUserAndDate(user,date,journeyCount);
+                            List<UserJourney>userJourneys = userJourneyRepository.findByUserAndJourneyDate(user,date);
                             if(userJourneys.isEmpty()){
                                 UserJourney userJourney = UserJourney.builder()
                                         .user(user)
@@ -195,7 +196,7 @@ public class UserJourneyService {
 
     public String updateStudentJourney(LocalDate date, boolean hasJourney, String email) {
         try {
-            Optional<User> userOptional = userRepo.findByEmail(email);
+            Optional<User> userOptional = userRepo.findByEmail(email.toLowerCase().trim());
 
             if (userOptional.isPresent()) {
                 if(userOptional.get().getVerified()){
@@ -206,10 +207,14 @@ public class UserJourneyService {
                     Optional<UserJourney> userJourneyOptional = userJourneyRepository.findByUserIdAndJourneyDate(userId, date);
 
                     if (userJourneyOptional.isPresent()) {
-                        UserJourney userJourney = userJourneyOptional.get();
-                        userJourney.setJourneyCount(2);
-                        userJourneyRepository.save(userJourney);
-                        return "updated";
+                        if(userJourneyOptional.get().getJourneyCount() == 2){
+                            return "All journeys have been finished.";
+                        }else{
+                            UserJourney userJourney = userJourneyOptional.get();
+                            userJourney.setJourneyCount(2);
+                            userJourneyRepository.save(userJourney);
+                            return "updated";
+                        }
                     } else {
                         UserJourney userJourney = UserJourney.builder()
                                 .user(user)
@@ -218,7 +223,6 @@ public class UserJourneyService {
                                 .journeyDate(date)
                                 .journeyCount(hasJourney ? 1 : 0)
                                 .build();
-
                         user.getJourneys().add(userJourney);
                         userRepo.save(user);
                         return "updated";
@@ -229,7 +233,7 @@ public class UserJourneyService {
                 }
 
             } else {
-                return ("Not present" );
+                return ("User not found" );
             }
 
         }catch (Exception e){
@@ -255,5 +259,30 @@ public class UserJourneyService {
            return 404;
     }
 
+    public RouteDaysSelectionResponse getSelectedDaysByAdult(UUID userId) {
+        Optional<User> user = userRepo.findById(userId);
+
+        if(user.isPresent() && user.get().getRole() == Role.ADULT){
+            boolean monday = user.get().getSelectDays().isMonday();
+            boolean tuesday = user.get().getSelectDays().isTuesday();
+            boolean wednesday = user.get().getSelectDays().isWednesday();
+            boolean thursday = user.get().getSelectDays().isThursday();
+            boolean friday = user.get().getSelectDays().isFriday();
+            boolean saturday = user.get().getSelectDays().isSaturday();
+            boolean sunday = user.get().getSelectDays().isSunday();
+            return RouteDaysSelectionResponse.builder()
+                    .monday(monday)
+                    .tuesday(tuesday)
+                    .wednesday(wednesday)
+                    .thursday(thursday)
+                    .friday(friday)
+                    .saturday(saturday)
+                    .sunday(sunday)
+                    .build();
+
+        }else{
+            return null;
+        }
+    }
 }
 

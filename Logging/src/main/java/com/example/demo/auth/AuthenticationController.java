@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Objects;
-import java.util.UUID;
 
 @RestController
 @CrossOrigin
@@ -23,6 +22,7 @@ public class AuthenticationController {
 
     private final AuthenticationService service;
     private final ObjectMapper mapper;
+    private  final  ObjectMapper mapperAdult;
     @Autowired
     private ApprovalLetterRepository pdfDocumentRepository;
 
@@ -62,6 +62,35 @@ public class AuthenticationController {
         try {
 
             AuthenticationResponse response = service.register(request,schoolRequest,guardianRequest,routeRequest,birthFile,approvalFile,userPhoto);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PostMapping("/adult/register" )
+    public ResponseEntity<AuthenticationResponse> adultRegister(
+            @RequestPart("routeDetails") String routeRequest1,
+            @RequestPart("request") String request1,
+            @RequestParam("uploadedNICFront") MultipartFile uploadedNICFront,
+            @RequestParam("uploadedNICBack") MultipartFile uploadedNICBack,
+            @RequestParam("photo") MultipartFile userPhoto,
+            @RequestPart("selectDays") String selectionDays,
+            HttpServletRequest req
+    ) throws JsonProcessingException {
+        System.out.println("Received Headers:");
+        req.getHeaderNames().asIterator()
+                .forEachRemaining(headerName ->
+                        System.out.println(headerName + ": " + req.getHeader(headerName))
+                );
+        RouteRequest routeRequest = mapperAdult.readValue(routeRequest1, RouteRequest.class);
+        RouteDaysSelectionRequest selectionDays1 = mapperAdult.readValue(selectionDays, RouteDaysSelectionRequest.class);
+        RegisterRequest request = mapperAdult.readValue(request1, RegisterRequest.class);
+
+        try {
+
+            AuthenticationResponse response = service.adultRegister(request,selectionDays1,routeRequest,userPhoto, uploadedNICFront,uploadedNICBack);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             e.printStackTrace();
@@ -145,14 +174,6 @@ public class AuthenticationController {
                 }else{
                     return ResponseEntity.badRequest().body(null);
                 }
-    }
-
-    @GetMapping("/getName/{userId}")
-    public ResponseEntity<String> checkAlreadyUsers(
-            @PathVariable UUID userId){
-        String userName = service.getName(userId);
-        return ResponseEntity.ok(userName);
-
     }
 
     @PutMapping("/updatePassword/{userEmail}")
