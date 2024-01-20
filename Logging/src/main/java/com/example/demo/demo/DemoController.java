@@ -14,11 +14,7 @@ import org.springframework.web.bind.annotation.*;
 public class DemoController {
 
     private final AuthenticationService service;
-    @GetMapping
-    public ResponseEntity<String> sayHello() {
 
-        return ResponseEntity.ok("Secured endpoint");
-    }
     @GetMapping("/download/{fileId}")
     public ResponseEntity<?> downloadImage(@PathVariable Long fileId){
         byte[] imageData=service.downloadImage(fileId);
