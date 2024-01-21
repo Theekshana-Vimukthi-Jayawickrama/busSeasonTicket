@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/demo-controller")
 @RequiredArgsConstructor
 public class DemoController {
-
     private final AuthenticationService service;
 
     @GetMapping("/download/{fileId}")
