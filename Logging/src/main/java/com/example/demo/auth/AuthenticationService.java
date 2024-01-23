@@ -130,14 +130,12 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse adultRegister(RegisterRequest request,RouteDaysSelectionRequest daysSelectionRequest,  RouteRequest routeRequest, MultipartFile userPhoto, MultipartFile NICFrontPhoto,MultipartFile NICBackPhoto) throws Exception {
-
         String email = request.getEmail();
         // Check if email already exists
         if (!userService.isEmailUnique(email)) {
             // Handle duplicate email error.
             throw new EmailAlreadyExistsException("Email already exists");
         }
-
         SelectDays selectDays = SelectDays.builder()
                 .friday(daysSelectionRequest.isFriday())
                 .monday(daysSelectionRequest.isMonday())
@@ -405,7 +403,7 @@ public class AuthenticationService {
         var user = repository.findByEmail(request.getEmail())
                 .orElseThrow();
 
-        if(Objects.equals(user.getStatus(), "active")){
+        if(Objects.equals(user.getStatus(), "active") && (user.getRole().equals(Role.ADULT) || user.getRole().equals(Role.STUDENT))){
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             request.getEmail(),

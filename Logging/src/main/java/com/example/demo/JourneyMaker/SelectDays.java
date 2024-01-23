@@ -18,7 +18,6 @@ public class SelectDays {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private boolean monday;
     private boolean tuesday;
     private boolean wednesday;
