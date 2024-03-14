@@ -1,1 +1,0 @@
-# busSeasonTicket mini project
